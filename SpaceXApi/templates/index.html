@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Index</title>
+</head>
+<body>
+<h1>SpaceX flights: {{ size }}</h1>
+<div id="container">
+    {% for number in length %}
+        <div class="perLaunch">
+            <div class="img_div">
+                <img src='{{ images|getElementByIndex:number }}' alt="Image">
+            </div>
+            <div class="text">
+                <h2>{{ rocket_names|getElementByIndex:number }}</h2>
+                <h2>{{ mission_names|getElementByIndex:number }} </h2><br>
+                <p>{{ description|getElementByIndex:number }}</p><br><br>
+                <p>{{ launch_dates_local|getElementByIndex:number }}</p>
+            </div>
+
+
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
+<style>
+    * {
+        font-family: Arial, sans-serif;
+    }
+
+    h1 {
+        display: flex;
+        justify-content: center;
+    }
+
+    div#container {
+        display: flex;
+        width: 1300px;
+        margin: auto;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+    }
+
+    .perLaunch {
+        display: flex;
+        margin: 30px;
+        background-color: white;
+        padding: 10px 15px 10px 15px;
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        -webkit-border-radius: 15px;
+        border: 1px black solid;
+        cursor: pointer;
+    }
+
+    .img_div {
+        display: flex;
+        justify-content: center;
+        padding: 15px;
+    }
+
+    .perLaunch:hover {
+        background-color: black;
+        color: white;
+        transition: 0.8s;
+    }
+
+    .text{
+        padding: 20px;
+        text-align: center;
+    }
+</style>
