@@ -1,44 +1,88 @@
 from django.shortcuts import render
+from SpaceXApi.models import Launch
+from SpaceXApi.vars import *
 import urllib.request
 import json
-from django.http import JsonResponse
+
 
 
 # Create your views here.
-# importing the requests library
-
-def spaceXApi(request):
+def getLaunches():
     url = 'https://api.spacexdata.com/v3/launches'
     response = urllib.request.urlopen(url).read()
     json_obj = str(response, 'utf-8')
     data = json.loads(json_obj)
 
-    counter = 0
-    size = []
-    mission_names = []
-    rocket_names = []
-    launch_dates_local = []
-    images = []
-    description = []
+    launches = []
 
+    for info in data:
+        # if hide_upcoming:
+        # if bool(info['upcoming'] == False):
+        launch = Launch(
+            info['mission_name'],
+            info['rocket']['rocket_name'],
+            info['details'],
+            info['launch_date_local'],
+            info['links']['mission_patch_small'],
+            bool(info['upcoming']))
+        launches.append(launch)
+    # else:
+    #     launch = Launch(info['mission_name'], info['rocket']['rocket_name'], info['details'],
+    #                     info['launch_date_local'], info['links']['mission_patch_small'], bool(info['upcoming']))
+    #     launches.append(launch)
+    return launches
 
-    for launch in data:
-        size.append(counter)
-        mission_names.append(launch['mission_name'])
-        rocket_names.append(launch['rocket']['rocket_name'])
-        launch_dates_local.append(launch['launch_date_local'])
-        images.append(launch['links']['mission_patch_small'])
-        description.append(launch['details'])
-        counter += 1
+sort_old = True
+
+def sortLaunches(request):
+    global sort_old
+    if (request.POST.get('sort_old')):
+        if sort_old:
+            launches = getGL()
+            setGL(launches)
+            sort_old = True
+            print('Already sorted old')
+        else:
+            launches = getGL()
+            launches.reverse()
+            sort_old = True
+            setGL(launches)
+            print('sort old')
+    else:
+        if sort_old:
+            launches = getGL()
+            launches.reverse()
+            sort_old = False
+            setGL(launches)
+            print('sort new')
+        else:
+            launches = getGL()
+            setGL(launches)
+            sort_old = False
+            print('Already sorted new')
 
     return render(request, 'index.html', {
-        'length': size,
-        'size': data.__len__(),
-        'mission_names': mission_names,
-        'rocket_names': rocket_names,
-        'launch_dates_local': launch_dates_local,
-        'images': images,
-        'description': description,
+        'launches': launches
+    })
+
+def sortUpcoming(request):
+    print('sorting')
+    if getUpcoming():
+        launches = sort_Upcoming(False)
+        print(showupcoming)
+    else:
+        launches = getLaunches()
+
+    return render(request, 'index.html', {
+        'show_upcoming': False,
+        'launches': launches
     })
 
 
+def spaceXApi(request):
+    setGL(getLaunches())
+    setFull(getLaunches())
+    return render(request, 'index.html', {
+        'show_upcoming': showupcoming,
+        'launches': getGL(),
+    })

@@ -1,31 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Index</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 </head>
 <body>
-<h1>SpaceX flights: {{ size }}</h1>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <button class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarTogglerDemo03"
+            aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+    <a class="navbar-brand" href="#"><h1 style="margin: 20px">SpaceX</h1></a>
+
+    <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            <li class="nav-item">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">
+                        Sort date
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <form action="sort" method="post">
+                            {% csrf_token %}
+                            <input name="sort_old" class="dropdown-item" type="submit" value="Oldest">
+                            <input name="sort-new" class="dropdown-item" type="submit" value="Newest">
+                        </form>
+                    </div>
+                </div>
+            </li>
+            <li>
+                <form action="sort_upcoming" method="post">
+                    {% csrf_token %}
+                    Hide upcoming<input name="show_upcoming" onchange="this.form.submit()" type="checkbox">
+                </form>
+            </li>
+        </ul>
+    </div>
+</nav>
+<h1>SpaceX flights: {{ launches|length }}</h1>
 <div id="container">
-    {% for number in length %}
+    {% for launch in launches %}
         <div class="perLaunch">
-            <div class="img_div">
-                <img src='{{ images|getElementByIndex:number }}' alt="Image">
-            </div>
-            <div class="text">
-                <h2>{{ rocket_names|getElementByIndex:number }}</h2>
-                <h2>{{ mission_names|getElementByIndex:number }} </h2><br>
-                <p>{{ description|getElementByIndex:number }}</p><br><br>
-                <p>{{ launch_dates_local|getElementByIndex:number }}</p>
-            </div>
-
-
+            {% if launch.upcoming %}
+                <div class="text">
+                    <h1 style="color: red">Upcoming</h1>
+                    <h2>{{ launch.rocket_name }}</h2>
+                    <h2>{{ launch.mission_name }} </h2><br>
+                    <p>{{ launch.launch_date }}</p>
+                </div>
+            {% else %}
+                <div class="img_div">
+                    <img src='{{ launch.image_url }}' alt="Image">
+                </div>
+                <div class="text">
+                    <h2>{{ launch.rocket_name }}</h2>
+                    <h2>{{ launch.mission_name }} </h2><br>
+                    <p>{{ launch.description }}</p><br><br>
+                    <p>{{ launch.launch_date }}</p>
+                </div>
+            {% endif %}
         </div>
     {% endfor %}
 </div>
-
 </body>
 </html>
+
 <style>
     * {
         font-family: Arial, sans-serif;
@@ -34,11 +88,11 @@
     h1 {
         display: flex;
         justify-content: center;
+        margin-top: 30px;
     }
 
     div#container {
         display: flex;
-        width: 1300px;
         margin: auto;
         justify-content: space-evenly;
         flex-wrap: wrap;
@@ -57,8 +111,11 @@
 
     .img_div {
         display: flex;
-        justify-content: center;
-        padding: 15px;
+        padding: 20px;
+    }
+
+    .img_div img {
+        object-fit: contain;
     }
 
     .perLaunch:hover {
@@ -67,8 +124,9 @@
         transition: 0.8s;
     }
 
-    .text{
+    .text {
         padding: 20px;
+        width: 450px;
         text-align: center;
     }
 </style>
